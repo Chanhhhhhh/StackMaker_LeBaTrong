@@ -6,6 +6,7 @@ public class Level : MonoBehaviour
 {
     [SerializeField] private List<ParticleSystem> _particles;
     [SerializeField] private List<GameObject> Treasure;
+    public Transform StartPoint;
 
     public void WinGame()
     {

@@ -14,7 +14,7 @@ public class Line : MonoBehaviour
             if (LevelManager.Instance.totalBrick > 0)
             {
                 isCollect = true;
-                Instantiate(LevelManager.Instance.BrickFill, this.transform.position, Quaternion.Euler(-90f, 0, 0));
+                SimplePool.Spawn<BrickFill>(PoolType.BrickFill, this.transform.position, Quaternion.Euler(-90f, 0, 0));
                 player.RemoveBrick();
                 if (LevelManager.Instance.totalBrick <= 0)
                 {

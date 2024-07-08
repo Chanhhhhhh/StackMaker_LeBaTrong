@@ -318,6 +318,8 @@ public class PoolAmount
 public enum PoolType
 {
     none = 0,
-    BrickFill = 1,
-    BrickPlayer = 2
+    CoinUI= 1,
+    DiamondUI = 2,
+    BrickFill = 3,
+    BrickPlayer = 4
 }

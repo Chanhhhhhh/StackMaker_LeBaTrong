@@ -12,7 +12,7 @@ public enum Direct
     Left = 3,
     Back = 4
 }
-public class Player : MonoBehaviour
+public class Player : GameUnit
 {
     [SerializeField] private LayerMask moveLayer;    
     [SerializeField] private LayerMask lineLayer;    
@@ -21,7 +21,6 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask pushLayer;
     [SerializeField] private Transform boxBrick;
     [SerializeField] private Animator Anim;
-    [SerializeField] private Transform PointRay;
 
     private List<Brick> playerBricks = new List<Brick>();
     private int currentAnim;
@@ -42,30 +41,32 @@ public class Player : MonoBehaviour
     private Direct currentDirect;
     private Vector3 currentDir;
 
-    public Level level;
-
     // Start is called before the first frame update
 
     private void Start()
     {
         OnInit();
     }
-    public  void OnInit()
+    public override void OnInit()
     {
         isMove = false;
         isControl= false;
         movePoint = transform.position;
         ResetAnim();
         ClearBrick();
-
     }
 
+    public override void OnDespawn()
+    {
+        gameObject.SetActive(false);
+    }
 
 
     // Update is called once per frame
     void Update()
     {
-        if (!isMove)
+        
+        if (!isMove && GameManager.IsState(GameState.Play))
         {
             HandleMouseInput();
         }
@@ -96,10 +97,10 @@ public class Player : MonoBehaviour
     private void Move()
     {
         
-        if (Vector3.Distance(transform.position, movePoint) < 0.1f)
+        if (Vector3.Distance(TF.position, movePoint) < 0.1f)
         {
             isMove = false;
-            if (Physics.Raycast(transform.position + Vector3.up * 2, Vector3.down, 10f, pushLayer))
+            if (Physics.Raycast(TF.position + Vector3.up * 2, Vector3.down, 10f, pushLayer))
             {
                 currentDirect = GetPushDirect(currentDirect);
                 movePoint = GetNextPoint(currentDirect);
@@ -107,7 +108,7 @@ public class Player : MonoBehaviour
             }
 
         }
-        transform.position = Vector3.MoveTowards(transform.position, movePoint, Time.deltaTime * speed);
+        TF.position = Vector3.MoveTowards(TF.position, movePoint, Time.deltaTime * speed);
     }
     private Direct GetDirect(Vector3 mouseDown, Vector3 mouseUp)
     {
@@ -148,7 +149,7 @@ public class Player : MonoBehaviour
     {
 
         RaycastHit hit;
-        Vector3 nextPoint = transform.position;
+        Vector3 nextPoint = TF.position;
         Vector3 dir = Vector3.zero;
 
         switch (direct)
@@ -170,8 +171,8 @@ public class Player : MonoBehaviour
         
         for (int i = 1; i < 100; i++)
         {
-            Debug.DrawRay(transform.position + dir * i + Vector3.up * 2, Vector3.down,  Color.red,10f);
-            if (Physics.Raycast(transform.position + dir * i + Vector3.up * 2, Vector3.down, out hit, 10f, lineLayer))
+            Debug.DrawRay(TF.position + dir * i + Vector3.up * 2, Vector3.down,  Color.red,10f);
+            if (Physics.Raycast(TF.position + dir * i + Vector3.up * 2, Vector3.down, out hit, 10f, lineLayer))
             {
                 Line line = hit.collider.GetComponent<Line>();
                 if (!line.isCollect && playerBricks.Count <= 0)
@@ -179,7 +180,7 @@ public class Player : MonoBehaviour
                     return nextPoint;
                 }
             }
-            if (Physics.Raycast(transform.position + dir*i + Vector3.up * 2, Vector3.down, out hit, 10f, moveLayer))
+            if (Physics.Raycast(TF.position + dir*i + Vector3.up * 2, Vector3.down, out hit, 10f, moveLayer))
             {
                 nextPoint = hit.collider.transform.position;
             }
@@ -196,7 +197,7 @@ public class Player : MonoBehaviour
     public void Stop()
     {
 
-        movePoint = transform.position;
+        movePoint = TF.position;
     }
 
     private Direct GetPushDirect(Direct Direct)
@@ -211,7 +212,7 @@ public class Player : MonoBehaviour
             }
             float radian = angle *(i-1) * Mathf.Deg2Rad;
             Vector3 check = new Vector3(Mathf.Cos(radian), 0, Mathf.Sin(radian)).normalized;
-            if (Physics.Raycast(transform.position + check + Vector3.up *2, Vector3.down, 10f, moveLayer))
+            if (Physics.Raycast(TF.position + check + Vector3.up *2, Vector3.down, 10f, moveLayer))
             {
                 isMove = true;
                 return (Direct)i;
@@ -226,13 +227,10 @@ public class Player : MonoBehaviour
         ChangAnim(1);
         LevelManager.Instance.totalBrick++;
         int index = playerBricks.Count;
-        Brick brick = SimplePool.Spawn<Brick>(PoolType.BrickPlayer, this.transform.position, Quaternion.Euler(-90f,0,-180f));
-        brick.transform.localPosition = (index + 1) * Constant.HEIGHT_BRICK * Vector3.up;
+        Brick brick = SimplePool.Spawn<Brick>(PoolType.BrickPlayer, this.TF.position, Quaternion.Euler(-90f,0,-180f));
+        brick.TF.localPosition = (index + 1) * Constant.HEIGHT_BRICK * Vector3.up;
         playerBricks.Add(brick);
-        if (LevelManager.Instance.totalBrick >1)
-        {
-            playerSkin.localPosition = playerSkin.localPosition + Vector3.up * Constant.HEIGHT_BRICK;
-        }
+        playerSkin.localPosition = playerSkin.localPosition + Vector3.up * Constant.HEIGHT_BRICK;
         Invoke(nameof(ResetAnim), 0.3f);
     }
 
@@ -276,11 +274,14 @@ public class Player : MonoBehaviour
             ChangAnim(2);
             playerSkin.localPosition -= Vector3.up * playerBricks.Count * Constant.HEIGHT_BRICK;
             ClearBrick();
-            level.WinGame();
+            GameManager.ChangeState(GameState.Finish);
+
         }
         if (other.CompareTag(Constant.TAG_DIAMOND))
         {
-            other.gameObject.SetActive(false);    
+            UIManager.Instance.GetUI<CanvasItem>().EffectItem(other.transform.position, PoolType.DiamondUI,1);
+            UIManager.Instance.GetUI<CanvasItem>().EffectItem(other.transform.position, PoolType.CoinUI, 1);
+            other.gameObject.SetActive(false);
         }
     }
 
