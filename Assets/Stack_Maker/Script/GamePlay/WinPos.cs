@@ -26,7 +26,8 @@ public class WinPos : GameUnit
 
     public override void OnInit()
     {
-        
+        box_close.SetActive(true);
+        box_open.SetActive(false);
     }
 
     public override void OnDespawn()

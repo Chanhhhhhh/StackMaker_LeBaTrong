@@ -42,17 +42,11 @@ public class Player : GameUnit
     private Direct currentDirect;
     private Vector3 currentDir;
 
-    // Start is called before the first frame update
-
-    private void Start()
-    {
-        OnInit();
-    }
     public override void OnInit()
     {
         isMove = false;
         isControl= false;
-        movePoint = transform.position;
+        movePoint = TF.position;
         ResetAnim();
         ClearBrick();
     }

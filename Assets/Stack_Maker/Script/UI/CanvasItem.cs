@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,7 +26,7 @@ public class CanvasItem : UICanvas
         {
             ItemEffect itemUI = SimplePool.Spawn<ItemEffect>(poolType);
             itemUI.TF.SetParent(this.transform);
-            itemUI.TF.position = Cache.MainCamera.WorldToScreenPoint(pos) + new Vector3(Random.Range(-5, 5), Random.Range(-5, 5), 0);
+            itemUI.TF.position = Cache.MainCamera.WorldToScreenPoint(pos) + new Vector3(UnityEngine.Random.Range(-5, 5), UnityEngine.Random.Range(-5, 5), 0);
             Move(itemUI, poolType, false);
         }
     }
@@ -36,7 +37,8 @@ public class CanvasItem : UICanvas
         {
             ItemEffect itemUI = SimplePool.Spawn<ItemEffect>(poolType);
             itemUI.TF.SetParent(this.transform);
-            itemUI.TF.localPosition = pos + new Vector3(Random.Range(-80f, 80f), Random.Range(-80f, 80f), 0);
+            Vector2 posrect = RectTransformUtility.WorldToScreenPoint(Cache.MainCamera, pos);
+            itemUI.TF.GetComponent<RectTransform>().position = (Vector3)posrect + new Vector3(UnityEngine.Random.Range(-80f, 80f), UnityEngine.Random.Range(-80f, 80f), 0);
             bool isLast = i == amount - 1;
             Move(itemUI, poolType,isLast);
         }
@@ -49,7 +51,7 @@ public class CanvasItem : UICanvas
         {
             case PoolType.DiamondUI:
 
-                tween = itemUI.GetComponent<RectTransform>().DOAnchorPos((Vector2)targetDiamond.transform.localPosition, Random.Range(0.8f, 1.2f)).SetEase(Ease.InBack).OnComplete(() =>
+                tween = itemUI.transform.DOMove(targetDiamond.transform.position, UnityEngine.Random.Range(0.8f, 1.2f)).SetEase(Ease.InBack).OnComplete(() =>
                 {
                     Diamond.text = (++SaveManager.Instance.Diamond).ToString();
                     itemUI.OnDespawn();
@@ -57,7 +59,7 @@ public class CanvasItem : UICanvas
                 break;
             case PoolType.CoinUI:
                 
-                tween = itemUI.GetComponent<RectTransform>().DOAnchorPos((Vector2)targetCoin.transform.localPosition, Random.Range(0.8f, 1.2f)).SetEase(Ease.InBack).OnComplete(() =>
+                tween = itemUI.transform.DOMove(targetCoin.transform.position, UnityEngine.Random.Range(0.8f, 1.2f)).SetEase(Ease.InBack).OnComplete(() =>
                 {
                     Coin.text = (++SaveManager.Instance.Coin).ToString();
                     itemUI.OnDespawn();
@@ -70,6 +72,7 @@ public class CanvasItem : UICanvas
         {
             tween.OnComplete(() =>
             {
+                itemUI.OnDespawn();
                 UIManager.Instance.CloseUI<CanvasTreasure>(1.5f);
                 UIManager.Instance.OpenUI<CanvasFinish>(1.7f);
             });

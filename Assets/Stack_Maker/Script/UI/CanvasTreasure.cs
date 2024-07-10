@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +15,7 @@ public class CanvasTreasure : UICanvas
     {
         base.Setup();
         this.transform.SetParent(UIManager.Instance.gameObject.transform);
-        this.GetComponent<Canvas>().worldCamera = GameManager.Instance.CameraCanvas;
+        this.GetComponent<Canvas>().worldCamera = Cache.MainCamera;
         for (int i = 0; i < buttons.Length; i++)
         {
             int tempindex = i;
@@ -29,7 +30,7 @@ public class CanvasTreasure : UICanvas
             buttons[i].gameObject.SetActive(false);
             if (i != index)
             {
-                sequence.Join(treasures[i].transform.DOScale(Vector3.zero, 1f).SetEase(Ease.InBack));
+                sequence.Join(treasures[i].transform.DOScale(UnityEngine.Vector3.zero, 1f).SetEase(Ease.InBack));
             }
         }
         sequence.OnComplete(() =>
@@ -37,7 +38,7 @@ public class CanvasTreasure : UICanvas
             
             Instantiate(treasure_Open,this.transform).transform.localPosition = treasures[index].transform.localPosition;
             treasures[index].gameObject.SetActive(false);
-            UIManager.Instance.GetUI<CanvasItem>().EffectBonus(treasures[index].transform.localPosition, PoolType.CoinUI, 5);
+            UIManager.Instance.GetUI<CanvasItem>().EffectBonus(treasures[index].transform.position, PoolType.CoinUI, 5);
         });
     }
 

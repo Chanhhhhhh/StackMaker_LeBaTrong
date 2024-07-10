@@ -8,8 +8,6 @@ using UnityEngine.UI;
 public enum GameState { MainMenu, Play, Level, Shop, Finish}
 public class GameManager : Singleton<GameManager>
 {
-    public Camera CameraCanvas;
-
     private static GameState gameState;
 
     private void Awake()
