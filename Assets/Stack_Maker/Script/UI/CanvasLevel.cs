@@ -15,8 +15,7 @@ public class CanvasLevel : UICanvas
         {
             Destroy(child.gameObject);
         }
-        int countLevel = LevelManager.Instance.levels.Count;
-        for(int i = 0; i < countLevel; i++)
+        for(int i = 0; i < LevelManager.Instance.CountLevel; i++)
         {
             LevelBtn level = Instantiate(levelBtnP, Content);
             level.OnInit(i);

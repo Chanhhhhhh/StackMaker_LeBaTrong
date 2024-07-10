@@ -10,7 +10,7 @@ public class BrickFill : GameUnit
     }
 
     public override void OnDespawn()
-    { 
-
+    {
+        SimplePool.Despawn(this);
     }
 }

@@ -9,7 +9,7 @@ public class CanvasFinish : UICanvas
     public override void Setup()
     {
         base.Setup();
-        txt_Score.text = "Score : " + LevelManager.Instance.totalBrick.ToString();
+        txt_Score.text = "Score : " + LevelManager.Instance.Score.ToString();
     }
 
 

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - push
   - Diamond
+  - WinPos
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - Push
   - Line
   - Treasure
-  - 
+  - WinPos
   - 
   - 
   - 

@@ -12,10 +12,10 @@ public class Constant
 
 
     public const string TAG_PLAYER = "Player";
-    public const string TAG_ENEMY = "Enemy";
     public const string TAG_COIN = "Coin";
     public const string TAG_DIAMOND = "Diamond";
     public const string TAG_FINISH = "Finish";
+    public const string TAG_WINPOS = "WinPos";
 
     public const float HEIGHT_BRICK = 0.3f;
 }

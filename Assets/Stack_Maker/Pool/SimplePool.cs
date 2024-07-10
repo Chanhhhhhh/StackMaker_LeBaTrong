@@ -321,5 +321,9 @@ public enum PoolType
     CoinUI= 1,
     DiamondUI = 2,
     BrickFill = 3,
-    BrickPlayer = 4
+    BrickPlayer = 4,
+    Wall = 5,
+    UnBrick = 6,
+    Line = 7,
+    WinPos = 8
 }

@@ -9,10 +9,9 @@ public enum GameState { MainMenu, Play, Level, Shop, Finish}
 public class GameManager : Singleton<GameManager>
 {
     public Camera CameraCanvas;
-    private static GameState gameState;
-    public static UnityEvent<GameState> OnGameStateChange;
 
-    public int currentLevel;
+    private static GameState gameState;
+
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -33,14 +32,14 @@ public class GameManager : Singleton<GameManager>
             case GameState.Play:                
                 break;
             case GameState.Finish:
-                UIManager.Instance.OpenUI<CanvasTreasure>(3f);
+                LevelManager.Instance.currentWinPos.PlayParticleSystem();
+                UIManager.Instance.OpenUI<CanvasTreasure>(2f);
                 LevelManager.Instance.FinishLevel();
                 break;
             default: 
                 break;
         }
 
-        OnGameStateChange?.Invoke(state);
     }
     public static bool IsState(GameState state)
     {
@@ -51,7 +50,7 @@ public class GameManager : Singleton<GameManager>
         UIManager.Instance.CloseUI<CanvasLevel>();
         UIManager.Instance.CloseUI<CanvasFinish>();
         ChangeState(GameState.Play);
-        LevelManager.Instance.OnPlayGame(level);
+        LevelManager.Instance.CreateLevel(level);
 
     }
 

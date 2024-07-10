@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Brick : GameUnit
 {
-
-    private bool isCollect = false;
-
     public override void OnInit()
     {
 
@@ -18,9 +15,8 @@ public class Brick : GameUnit
     private void OnTriggerEnter(Collider other)
     {
         
-        if (other.CompareTag(Constant.TAG_PLAYER) && !isCollect)
-        {
-            isCollect = true ;            
+        if (other.CompareTag(Constant.TAG_PLAYER))
+        {                       
             other.GetComponent<Player>().AddBrick();
             gameObject.SetActive(false);
         }

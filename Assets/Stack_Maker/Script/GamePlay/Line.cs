@@ -3,9 +3,19 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Line : MonoBehaviour
-{    
+public class Line : GameUnit
+{
     public bool isCollect = false;
+    public override void OnInit()
+    {
+        isCollect = false;
+    }
+
+    public override void OnDespawn()
+    {
+
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag(Constant.TAG_PLAYER) && !isCollect)

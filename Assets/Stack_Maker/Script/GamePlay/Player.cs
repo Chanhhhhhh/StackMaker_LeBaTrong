@@ -21,8 +21,9 @@ public class Player : GameUnit
     [SerializeField] private LayerMask pushLayer;
     [SerializeField] private Transform boxBrick;
     [SerializeField] private Animator Anim;
+    [SerializeField] private BrickFill BrickPrefab;
 
-    private List<Brick> playerBricks = new List<Brick>();
+    private List<BrickFill> playerBricks = new List<BrickFill>();
     private int currentAnim;
 
     private Vector3 mouseDown, mouseUp;    
@@ -34,7 +35,7 @@ public class Player : GameUnit
         {
             movePoint = value;
         }
-    }
+    } 
 
     private bool isMove;
     private bool isControl;
@@ -100,7 +101,7 @@ public class Player : GameUnit
         if (Vector3.Distance(TF.position, movePoint) < 0.1f)
         {
             isMove = false;
-            if (Physics.Raycast(TF.position + Vector3.up * 2, Vector3.down, 10f, pushLayer))
+            if (Physics.Raycast(TF.position + Vector3.up * 5, Vector3.down, 10f, pushLayer))
             {
                 currentDirect = GetPushDirect(currentDirect);
                 movePoint = GetNextPoint(currentDirect);
@@ -171,8 +172,8 @@ public class Player : GameUnit
         
         for (int i = 1; i < 100; i++)
         {
-            Debug.DrawRay(TF.position + dir * i + Vector3.up * 2, Vector3.down,  Color.red,10f);
-            if (Physics.Raycast(TF.position + dir * i + Vector3.up * 2, Vector3.down, out hit, 10f, lineLayer))
+            //Debug.DrawRay(TF.position + dir * i + Vector3.up * 5, Vector3.down,  Color.red,10f);
+            if (Physics.Raycast(TF.position + dir * i + Vector3.up * 5, Vector3.down, out hit, 10f, lineLayer))
             {
                 Line line = hit.collider.GetComponent<Line>();
                 if (!line.isCollect && playerBricks.Count <= 0)
@@ -180,9 +181,9 @@ public class Player : GameUnit
                     return nextPoint;
                 }
             }
-            if (Physics.Raycast(TF.position + dir*i + Vector3.up * 2, Vector3.down, out hit, 10f, moveLayer))
+            if (Physics.Raycast(TF.position + dir*i + Vector3.up * 5, Vector3.down, out hit, 10f, moveLayer))
             {
-                nextPoint = hit.collider.transform.position;
+                nextPoint = hit.collider.transform.localPosition;
             }
             else
             {
@@ -212,7 +213,7 @@ public class Player : GameUnit
             }
             float radian = angle *(i-1) * Mathf.Deg2Rad;
             Vector3 check = new Vector3(Mathf.Cos(radian), 0, Mathf.Sin(radian)).normalized;
-            if (Physics.Raycast(TF.position + check + Vector3.up *2, Vector3.down, 10f, moveLayer))
+            if (Physics.Raycast(TF.position + check + Vector3.up *5, Vector3.down, 10f, moveLayer))
             {
                 isMove = true;
                 return (Direct)i;
@@ -225,9 +226,10 @@ public class Player : GameUnit
     public void AddBrick()
     {
         ChangAnim(1);
-        LevelManager.Instance.totalBrick++;
+        LevelManager.Instance.UpDateScore();
         int index = playerBricks.Count;
-        Brick brick = SimplePool.Spawn<Brick>(PoolType.BrickPlayer, this.TF.position, Quaternion.Euler(-90f,0,-180f));
+        BrickFill brick = Instantiate(BrickPrefab);
+        brick.transform.SetParent(boxBrick);
         brick.TF.localPosition = (index + 1) * Constant.HEIGHT_BRICK * Vector3.up;
         playerBricks.Add(brick);
         playerSkin.localPosition = playerSkin.localPosition + Vector3.up * Constant.HEIGHT_BRICK;
@@ -240,13 +242,10 @@ public class Player : GameUnit
         int index = playerBricks.Count - 1;
         if (index >= 0)
         {
-            Brick brick = playerBricks[index];
+            BrickFill brick = playerBricks[index];
             playerBricks.RemoveAt(index);
-            brick.OnDespawn();
-            if (LevelManager.Instance.totalBrick >0)
-            {
-                playerSkin.localPosition = playerSkin.localPosition -Vector3.up * Constant.HEIGHT_BRICK;
-            }        
+            Destroy(brick.gameObject);
+            playerSkin.localPosition = playerSkin.localPosition -Vector3.up * Constant.HEIGHT_BRICK;        
         }
 
     }
@@ -254,7 +253,7 @@ public class Player : GameUnit
     {
         for(int i = 0; i < playerBricks.Count; i++)
         {
-            playerBricks[i].OnDespawn();
+            Destroy(playerBricks[i].gameObject);
         }
         playerBricks.Clear();
     }
@@ -283,6 +282,14 @@ public class Player : GameUnit
             UIManager.Instance.GetUI<CanvasItem>().EffectItem(other.transform.position, PoolType.CoinUI, 1);
             other.gameObject.SetActive(false);
         }
+        if (other.CompareTag(Constant.TAG_WINPOS))
+        {
+            //Debug.Log("Win");
+            WinPos winPos = other.GetComponent<WinPos>();
+            movePoint = winPos.EndPos;
+            LevelManager.Instance.currentWinPos = winPos;
+        }
+
     }
 
 }
